@@ -47,7 +47,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Rate limiting for login attempts
+// Rate limiting for login attempts (applied to the login route)
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // Max 5 login attempts per 15 minutes
@@ -55,7 +55,7 @@ const loginLimiter = rateLimit({
 });
 
 // POST /api/auth/login - Login user
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => { // Apply loginLimiter here
   try {
     const { email, password } = req.body;
 
