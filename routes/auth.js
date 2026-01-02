@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const rateLimit = require('express-rate-limit');
 
 const router = express.Router();
 
@@ -44,6 +45,13 @@ router.post('/register', async (req, res) => {
     console.error(error);
     res.status(500).json({ message: 'Server error during registration.' });
   }
+});
+
+// Rate limiting for login attempts
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Max 5 login attempts per 15 minutes
+  message: 'Too many login attempts from this IP, please try again after 15 minutes',
 });
 
 // POST /api/auth/login - Login user
