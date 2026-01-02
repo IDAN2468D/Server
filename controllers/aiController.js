@@ -5,7 +5,7 @@ const apiKey = process.env.GEMINI_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 // שימוש במודל יציב שתומך ב-JSON Mode בצורה מושלמת
-const MODEL_NAME = "gemini-1.5-flash";
+const MODEL_NAME = "gemini-1.5-flash-latest";
 
 /**
  * פונקציית עזר להרצת פרומפט בפורמט JSON
