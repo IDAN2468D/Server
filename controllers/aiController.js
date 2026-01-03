@@ -7,6 +7,7 @@ const MODEL_NAME = "gemini-1.5-flash";
 
 const generateJSONResponse = async (prompt) => {
     if (!genAI) {
+        console.error("Gemini API Key is missing!");
         throw new Error("Missing GEMINI_API_KEY");
     }
 
@@ -15,8 +16,18 @@ const generateJSONResponse = async (prompt) => {
         generationConfig: { responseMimeType: "application/json" }
     });
 
-    const result = await model.generateContent(prompt);
-    return JSON.parse(result.response.text());
+    try {
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text();
+
+        // ניקוי תגיות Markdown אם קיימות בטעות
+        const cleanJson = responseText.replace(/```json|```/g, "").trim();
+
+        return JSON.parse(cleanJson);
+    } catch (parseError) {
+        console.error("Failed to parse AI response:", parseError);
+        throw new Error("AI returned invalid JSON format");
+    }
 };
 
 // אובייקט ה-Controller
