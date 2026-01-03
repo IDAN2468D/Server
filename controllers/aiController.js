@@ -43,7 +43,7 @@ const generateDescription = async (req, res) => {
     } catch (error) {
         console.error('Error in generateDescription:', error.message);
         const status = error.message.includes("API_KEY") ? 403 : 500;
-        res.status(status).json({ message: error.message || 'Error generating description.' });
+        res.status(status).json({ message: error.message || 'Route Not Found' });
     }
 };
 
