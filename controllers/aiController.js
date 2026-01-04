@@ -1,8 +1,9 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// אתחול ה-AI
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+// Note: Ensure gemini-2.5-flash is the correct version for your tier. 
+// Common versions: "gemini-1.5-flash"
 const MODEL_NAME = "gemini-2.5-flash";
 
 const generateJSONResponse = async (prompt) => {
@@ -18,9 +19,10 @@ const generateJSONResponse = async (prompt) => {
 
     try {
         const result = await model.generateContent(prompt);
+        // Better way to get response text
         const responseText = result.response.text();
 
-        // ניקוי תגיות Markdown אם קיימות בטעות
+        // Cleaning markdown is safer
         const cleanJson = responseText.replace(/```json|```/g, "").trim();
 
         return JSON.parse(cleanJson);
@@ -30,7 +32,6 @@ const generateJSONResponse = async (prompt) => {
     }
 };
 
-// אובייקט ה-Controller
 const aiController = {
     generateDescription: async (req, res) => {
         try {
@@ -50,6 +51,9 @@ const aiController = {
     suggestCategory: async (req, res) => {
         try {
             const { itemName } = req.body;
+            // ADDED VALIDATION
+            if (!itemName) return res.status(400).json({ message: 'Item name is required.' });
+
             const prompt = `Suggest a category for "${itemName}". Return JSON: { "category": "text" }`;
             const data = await generateJSONResponse(prompt);
             res.json(data);
@@ -61,7 +65,9 @@ const aiController = {
     fixText: async (req, res) => {
         try {
             const { text } = req.body;
+            // This is where your error was triggered. Ensure you send {"text": "..."} in the body
             if (!text) return res.status(400).json({ message: 'Text is required.' });
+
             const prompt = `Fix spelling/grammar for: "${text}". Return JSON: { "fixedText": "text" }`;
             const data = await generateJSONResponse(prompt);
             res.json(data);
@@ -73,6 +79,8 @@ const aiController = {
     generateTags: async (req, res) => {
         try {
             const { itemName } = req.body;
+            if (!itemName) return res.status(400).json({ message: 'Item name is required.' });
+
             const prompt = `Generate 5 search tags for "${itemName}". Return JSON: { "tags": [] }`;
             const data = await generateJSONResponse(prompt);
             res.json(data);
@@ -84,6 +92,8 @@ const aiController = {
     estimateValue: async (req, res) => {
         try {
             const { itemName } = req.body;
+            if (!itemName) return res.status(400).json({ message: 'Item name is required.' });
+
             const prompt = `Estimate second-hand value in NIS for "${itemName}" in Israel. Return JSON: { "range": "min-max", "reason": "text" }`;
             const data = await generateJSONResponse(prompt);
             res.json(data);
